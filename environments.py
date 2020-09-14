@@ -9,9 +9,6 @@ import torch.nn.functional as F
 import random
 
 
-
-
-
 class Env():
     def __init__(self, envname):
         self.env = gym.make(envname)
@@ -58,18 +55,21 @@ class Envs():
     def __init__(self, envname, n_envs):
         self.envs = [Env(envname) for i in range(n_envs)]
         self.n_envs = n_envs
-        
-    def step(self, pi, debug=False):
-        l = [[] for i in range(8)]
-        for env in self.envs:
+
+    def step(self, pi, debug=False, what=None):
+        what = what if what is not None else self.envs
+
+        l = [[] for i in range(9)]
+        for env in what:
             l2 = env.step(pi, debug)
             for i, t in enumerate(l2):
                 if type(t) == type((0, 0)):
                     for j, tt in enumerate(t):
-                        l[i+j].append(tt)
+                        l[i+j].append(tt.detach())
                 else:
-                    l[i].append(t)
-
+                    l[i].append(t.detach())
+        while len(l[-1])==0:
+            l.pop()
         toret = [torch.cat(l[i], dim=0) for i in range(len(l))]
         return toret
 
@@ -80,14 +80,17 @@ class Envs():
             for j in range(random.randint(0, maxstep)):
                 _ = env.step(pi, sample=True)
 
-    def rollout(self, pi, gamma=1, length=1e6, debug=False):
-        l = [[] for i in range(8)]
+    def rollout(self, pi, gamma=1, length=1e6, debug=False, what=None):
+        what = what if what is not None else self.envs
+        l = [[] for i in range(9)]
         for step in range(int(length)):
-            l2 = self.step(pi, debug)
+            l2 = self.step(pi, debug, what=what)
             for i, t in enumerate(l2):
                 l[i].append(t.unsqueeze(1))
             if l[4][step].sum() > 1e-5:
                 break
+        while len(l[-1])==0:
+            l.pop()
         toret = [torch.cat(l[i], dim=1) for i in range(len(l))]
         return toret
 
@@ -95,3 +98,16 @@ class Envs():
         for j in range(r.shape[1]-2, -1, -1):
             r[:, j] += gamma*r[:, j+1]
         return r
+
+    def list_rollout(self, pi, gamma=1, length=1e6, debug=False):
+        l = []
+        for i in range(self.n_envs):
+            returned = self.rollout(pi, gamma, length, debug, what=[self.envs[i]])
+            for r in returned:
+                r.squeeze_(dim=0)
+            l.append(returned)
+        return l
+
+            
+
+

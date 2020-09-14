@@ -48,6 +48,8 @@ class DQN(nn.Module):
         calc = self.forward(obs)
         calc = calc[frst, a.long().squeeze(-1)].unsqueeze(-1)
         return calc
+    def get_action(self, obs):
+        return torch.max(self.forward(obs), dim=-1)[1].detach().unsqueeze(-1)
 
         
         

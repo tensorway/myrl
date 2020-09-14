@@ -33,7 +33,7 @@ class ReplayBuffer():
         for i, item in enumerate(items):
             item = item.view(-1, item.shape[-1])
             for it in item:
-                self.deqs[i].append(it.unsqueeze(0))#.to(self.device))
+                self.deqs[i].append(it.unsqueeze(0).detach())#.to(self.device))
         self.length += items[0].shape[0]*items[0].shape[1]
         self._remover()
 
@@ -53,6 +53,15 @@ class ReplayBuffer():
             toret.append(l)
 
         return toret
+
+    def list_add(self, l):
+        for l1 in l:
+            for t in l1:
+                t.unsqueeze_(0)
+            self.add(*l1)
+            
+
+
 
 
 class PrioritizedReplayBuffer():
