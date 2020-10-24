@@ -58,7 +58,7 @@ class Envs():
 
     def step(self, pi, debug=False, what=None):
         what = what if what is not None else self.envs
-
+        # what = self.envs
         l = [[] for i in range(9)]
         for env in what:
             l2 = env.step(pi, debug)
@@ -68,6 +68,7 @@ class Envs():
                         l[i+j].append(tt.detach())
                 else:
                     l[i].append(t.detach())
+            
         while len(l[-1])==0:
             l.pop()
         toret = [torch.cat(l[i], dim=0) for i in range(len(l))]
@@ -107,6 +108,9 @@ class Envs():
                 r.squeeze_(dim=0)
             l.append(returned)
         return l
+    def seed(self, seed):
+        for env in self.envs:
+            env.env.seed(seed)
 
             
 

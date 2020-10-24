@@ -7,11 +7,12 @@ import torch
 
 
 class ModelResidual(nn.Module):
-    def __init__(self, net_arch):
+    def __init__(self, net_arch, env):
         super().__init__()
         l = [nn.Linear(a, b) for a, b in zip(net_arch[:-1], net_arch[1:])]
         l2 = [nn.Linear(net_arch[-2], 1)]
         self.layers = nn.ModuleList(l+l2)
+        self.env = env
 
     def forward(self, oldobs, a):
         # h = torch.tensor(x, dtype=torch.float)
@@ -27,7 +28,7 @@ class ModelResidual(nn.Module):
         obs = obs.repeat(nsmpls, 1)
         rs = torch.zeros(nsmpls, 1)
         for t in range(tlen):
-            a = get_batch_a(env, nsmpls)
+            a = get_batch_a(self.env, nsmpls)
             r, obs = self.forward(obs, a)
             rs += r
             a = a.unsqueeze(1)

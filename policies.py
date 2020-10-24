@@ -29,7 +29,7 @@ class GaussianPolicy(nn.Module):
             for lay in l[-2:]:
                 lay._parameters['weight'] /= 100
             for lay in l:
-                lay._parameters['bias'] *= 0
+                lay._parameters['bias']   *= 0
     def forward(self, x):
         h = torch.tensor(x, dtype=torch.float)
         for lay in self.layers[:-2]:
@@ -99,12 +99,16 @@ class LinearPolicy(nn.Module):
         return a, (h, smpl, h)
 
 class RandomPolicy():
-    def __init__(self, env):
+    def __init__(self, env, add_one_dummy=False):
         self.env = env
+        self.add_one_dummy = add_one_dummy
     def act(self, obs):
         dummy = torch.tensor([[1]])
-        a = get_batch_a(self.env, obs.shape[0]).numpy()
-        return a, (dummy, dummy, dummy)
+        at = get_batch_a(self.env, obs.shape[0])
+        an = at.numpy()
+        if self.add_one_dummy:
+            return an, (dummy, dummy, dummy, at)
+        return an, (dummy, dummy, dummy)
 
 
 

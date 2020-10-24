@@ -37,6 +37,7 @@ class RunningNormalizer():
     def __init__(self, alpha=0.97):
         self.m = None
         self.std = None
+        self.alpha = alpha
     def step(self, tensor):
         m = tensor.mean()
         std = tensor.std()
@@ -100,6 +101,7 @@ def gae(rs, obs, vfunc, gamma, lmbda):
         else:
             toret = (rs[t]+  (1-lmbda)*gamma*vals[t]) + gamma*lmbda*Rt(t+1)
         rts[t, 0] = toret
+ 
         flag[t] += 1
         return toret
     Rt(0)
