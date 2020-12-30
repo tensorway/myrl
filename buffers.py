@@ -37,10 +37,10 @@ class ReplayBuffer():
         self.length += items[0].shape[0]*items[0].shape[1]
         self._remover()
 
-        l1 = len(self.deqs[0])
-        for i in range(5):
-            if l1 != len(self.deqs[i]) :
-                raise ValueError("neeee")
+        # l1 = len(self.deqs[0])
+        # for i in range(5):
+        #     if l1 != len(self.deqs[i]) :
+        #         raise ValueError("neeee")
 
     def get(self, bsize):
         lidx = random.sample(range(0, self.length-1), bsize)

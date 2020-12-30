@@ -44,7 +44,7 @@ class DQN(nn.Module):
         return torch.max(self.forward(obs), dim=-1)[0].detach().unsqueeze(-1)
     def get_q(self, obs, a):
         bsize = obs.shape[0]
-        frst = torch.tensor(list(range(bsize)))
+        frst = torch.tensor(list(range(bsize)), device=a.device)
         calc = self.forward(obs)
         calc = calc[frst, a.long().squeeze(-1)].unsqueeze(-1)
         return calc
