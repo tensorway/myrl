@@ -32,7 +32,7 @@ class DQN(nn.Module):
         h = self.layers[-1](h)
         return h
     def act(self, obs, epsilon=0.1, debug=False):
-        obs = torch.tensor(obs).float()
+        obs = torch.tensor(obs).float() 
         qs = self.forward(obs)
         if random.uniform(0, 1) > epsilon:
             ii = torch.argmax(qs, dim=-1).unsqueeze(-1)
